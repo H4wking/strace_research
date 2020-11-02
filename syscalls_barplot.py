@@ -1,30 +1,36 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import os
 
 
 def process_strace_output(file):
-    calls = {"name": [], "amount": []}
+    calls = {"syscall": [], "calls": []}
     with open(file, 'r') as f:
         f.readline()
         f.readline()
         for line in f:
             if not line.startswith("-"):
                 line = line.strip().split()
-                calls["name"].append(line[-1])
-                calls["amount"].append(int(line[3]))
+                calls["syscall"].append(line[-1])
+                calls["calls"].append(int(line[3]))
             else:
                 break
 
     return calls
 
 
-def barplot(data):
+def barplot(data, title):
     df = pd.DataFrame(data=data)
-    df = df.sort_values(by=["amount"], ascending=False)
-    sns.barplot(x="amount", y="name", data=df, palette="Blues_d")
+    df = df.sort_values(by=["calls"], ascending=False)
+    sns.barplot(x="calls", y="syscall", data=df, palette="Blues_d")
+    plt.title(title)
+    plt.savefig("barplots/{}.png".format(title), bbox_inches="tight")
+    plt.close()
 
 
-data = process_strace_output("ls.txt")
-barplot(data)
-plt.show()
+dir = "syscalls_info"
+for f in os.listdir(dir):
+    file = dir + "/" + f
+    data = process_strace_output(file)
+    barplot(data, f[:-11])
