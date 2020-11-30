@@ -23,14 +23,17 @@ def process_strace_output(file):
 def barplot(data, title):
     df = pd.DataFrame(data=data)
     df = df.sort_values(by=["calls"], ascending=False)
+
+    # plt.rcParams["figure.figsize"] = (10, 3)
+
     sns.barplot(x="calls", y="syscall", data=df, palette="Blues_d")
     plt.title(title)
     plt.savefig("barplots/{}.png".format(title), bbox_inches="tight")
     plt.close()
 
 
-dir = "syscalls_info"
+dir = "python_stats"
 for f in os.listdir(dir):
     file = dir + "/" + f
     data = process_strace_output(file)
-    barplot(data, f[:-11])
+    barplot(data, f[:-4])
